@@ -28,6 +28,21 @@ function ImageCompressorPage() {
         }
     }
 
+    const handleDownload = () => {
+        if (!result || !selectedFile) {
+            return
+        }
+
+        const url = URL.createObjectURL(result.blob)
+
+        const link = document.createElement('a')
+        link.href = url
+        link.download = `brivela-${selectedFile.name.replace(/\.[^/.]+$/, '').jpg}`
+
+        link.click()
+
+        URL.revokeObjectURL(url)
+    }
 
     return(
         <main>
@@ -57,6 +72,16 @@ function ImageCompressorPage() {
                 <div>
                     <p>Original: {formatBytes(result.originalSize)}</p>
                     <p>Compressed: {formatBytes(result.compressedSize)}</p>
+                    <p>
+                        Saved: {calculateSavings(
+                            result.originalSize,
+                            result.compressedSize,
+                        ).toFixed(1)}%
+                    </p>
+
+                    <button onClick={handleDownload}>
+                        Download Image
+                    </button>
                 </div>
             )}
         </main>
@@ -72,6 +97,14 @@ function formatBytes(bytes: number): string {
     const index = Math. floor(Math.log(bytes) / Math.log(1024))
 
     return `${(bytes / Math.pow(1024, index)).toFixed(2)} ${units[index]}`
+}
+
+function calculateSavings(original: number, compressed: number): number {
+    if (original === 0) {
+        return 0
+    }
+
+    return ((original - compressed) / original) * 100
 }
 
 export default ImageCompressorPage
