@@ -22,6 +22,8 @@ export async function compressImage(
 
     context.drawImage(image, 0, 0)
 
+    const outputType = getOutputType(file.type)
+
     const blob = await new Promise<Blob>((resolve, reject) => {
         canvas.toBlob(
             (result) => {
@@ -31,7 +33,7 @@ export async function compressImage(
                     reject(new Error('Could not compress image'))
                 }
             },
-            'image/jpeg',
+            outputType,
             quality,
         )
     })
@@ -43,20 +45,37 @@ export async function compressImage(
     }
 }
 
+function getOutputType(type: string): string {
+    switch(type) {
+        case 'image/png':
+            return 'image/png'
+        
+        case 'image/webp':
+            return 'image/webp'
+        
+        case 'image/jpeg':
+            return 'image/jpeg'
+        
+        default:
+            throw new Error('Unsupported image format')
+    }
+}
+
 function loadImage(file: File): Promise<HTMLImageElement> {
     return new Promise((resolve, reject) => {
         const image = new Image()
+        const url = URL.createObjectURL(file)
 
         image.onload = () => {
-            URL.revokeObjectURL(image.src)
+            URL.revokeObjectURL(url)
             resolve(image)
         }
 
         image.onerror = () => {
-            URL.revokeObjectURL(image.src)
+            URL.revokeObjectURL(url)
             reject(new Error('Could not load image'))
         }
 
-        image.src = URL.createObjectURL(file)
+        image.src = url
     })
 }
