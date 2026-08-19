@@ -37,7 +37,7 @@ function ImageCompressorPage() {
 
         const link = document.createElement('a')
         link.href = url
-        link.download = `brivela-${selectedFile.name.replace(/\.[^/.]+$/, '').jpg}`
+        link.download = `brivela-${selectedFile.name.replace(/\.[^/.]+$/, '')}.jpg`
 
         link.click()
 
